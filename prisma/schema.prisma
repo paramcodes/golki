@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts  Account[]
+  sessions  Session[]
+  memberships WorkspaceMember[]
+  assignedIssues Issue[] @relation("Assignee")
+  reportedIssues Issue[] @relation("Reporter")
+  comments  Comment[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   WorkspaceMember[]
+  projects  Project[]
+}
+
+model WorkspaceMember {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String   @default("member")
+  createdAt   DateTime @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([workspaceId, userId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  key         String
+  name        String
+  description String?
+  type        String   @default("kanban")
+  workspaceId String
+  leadId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  issues      Issue[]
+  sprints     Sprint[]
+  labels      Label[]
+  @@unique([workspaceId, key])
+}
+
+model Issue {
+  id          String   @id @default(cuid())
+  key         String
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  type        String   @default("task")
+  estimate    Int?
+  position    Int      @default(0)
+  projectId   String
+  sprintId    String?
+  assigneeId  String?
+  reporterId  String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  assignee    User?    @relation("Assignee", fields: [assigneeId], references: [id])
+  reporter    User?    @relation("Reporter", fields: [reporterId], references: [id])
+  parent      Issue?   @relation("Subtasks", fields: [parentId], references: [id])
+  subtasks    Issue[]  @relation("Subtasks")
+  comments    Comment[]
+  labels      IssueLabel[]
+  @@unique([projectId, key])
+  @@index([projectId, status])
+  @@index([sprintId])
+}
+
+model Sprint {
+  id        String   @id @default(cuid())
+  name      String
+  goal      String?
+  startDate DateTime?
+  endDate   DateTime?
+  status    String   @default("planned")
+  projectId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues    Issue[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  issueId   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6b6e76")
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues    IssueLabel[]
+  @@unique([projectId, name])
+}
+
+model IssueLabel {
+  issueId String
+  labelId String
+  issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label   Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  @@id([issueId, labelId])
+}

@@ -1,26 +1,60 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "@atlaskit/css-reset/dist/bundle.css";
+@import "../styles/tokens.css";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ads-text: var(--ads-text);
+  --color-ads-text-subtle: var(--ads-text-subtle);
+  --color-ads-text-subtlest: var(--ads-text-subtlest);
+  --color-ads-text-inverse: var(--ads-text-inverse);
+  --color-ads-text-disabled: var(--ads-text-disabled);
+  --color-ads-text-link: var(--ads-text-link);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ads-bg: var(--ads-bg);
+  --color-ads-bg-subtle: var(--ads-bg-subtle);
+  --color-ads-bg-bold: var(--ads-bg-bold);
+  --color-ads-bg-input: var(--ads-bg-input);
+  --color-ads-bg-disabled: var(--ads-bg-disabled);
+  --color-ads-bg-selected: var(--ads-bg-selected);
+  --color-ads-bg-information: var(--ads-bg-information);
+  --color-ads-bg-success: var(--ads-bg-success);
+  --color-ads-bg-warning: var(--ads-bg-warning);
+  --color-ads-bg-danger: var(--ads-bg-danger);
+  --color-ads-bg-discovery: var(--ads-bg-discovery);
+
+  --color-ads-border: var(--ads-border);
+  --color-ads-border-input: var(--ads-border-input);
+  --color-ads-border-selected: var(--ads-border-selected);
+  --color-ads-border-focused: var(--ads-border-focused);
+
+  --color-ads-icon: var(--ads-icon);
+  --color-ads-icon-subtle: var(--ads-icon-subtle);
+  --color-ads-icon-inverse: var(--ads-icon-inverse);
+
+  --color-ads-accent-blue: var(--ads-accent-blue);
+  --color-ads-accent-blue-bold: var(--ads-accent-blue-bold);
+  --color-ads-accent-red: var(--ads-accent-red);
+  --color-ads-accent-green: var(--ads-accent-green);
+  --color-ads-accent-yellow: var(--ads-accent-yellow);
+  --color-ads-accent-purple: var(--ads-accent-purple);
+  --color-ads-accent-teal: var(--ads-accent-teal);
+  --color-ads-accent-orange: var(--ads-accent-orange);
+  --color-ads-accent-magenta: var(--ads-accent-magenta);
+  --color-ads-accent-gray: var(--ads-accent-gray);
+
+  --font-sans: var(--ads-font-sans);
+  --font-mono: var(--ads-font-mono);
+
+  --radius-ads-xs: var(--ads-radius-xs);
+  --radius-ads-sm: var(--ads-radius-sm);
+  --radius-ads-md: var(--ads-radius-md);
+  --radius-ads-lg: var(--ads-radius-lg);
+  --radius-ads-xl: var(--ads-radius-xl);
+  --radius-ads-full: var(--ads-radius-full);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ads-bg);
+  color: var(--ads-text);
+  font-family: var(--ads-font-sans);
 }

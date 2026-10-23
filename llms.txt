@@ -1,0 +1,17 @@
+# golki llms.txt
+
+Project: Jira clone (React/Next.js) matching Atlassian design system.
+
+## Where to look
+- Agent contract: /AGENTS.md
+- Codebase design: /AGENT_FRIENDLY_CODEBASE.md
+- UI research: /RESEARCH.md
+- Design system: /DESIGN.md
+- Data model: /docs/data-model.md (planned)
+- Architecture: /docs/architecture.md (planned)
+
+## Stack
+Next.js 15, React 19, TS strict, Tailwind v4, HeroUI v3, Prisma+Postgres, Zustand, TanStack Query, Biome, Vitest, agent-browser+Lightpanda, @atlaskit/pragmatic-drag-and-drop.
+
+## Commands
+bun install | bun run dev | bun run typecheck | bun run check | bun run test | bun run e2e

@@ -1,0 +1,113 @@
+/* Atlassian Design System tokens (light default, dark via data-color-mode) */
+
+:root,
+[data-color-mode="light"] {
+  --ads-text: #172b4d;
+  --ads-text-subtle: #44546f;
+  --ads-text-subtlest: #626f86;
+  --ads-text-inverse: #ffffff;
+  --ads-text-disabled: #8590a2;
+  --ads-text-link: #0055cc;
+
+  --ads-bg: #ffffff;
+  --ads-bg-subtle: #f7f8f9;
+  --ads-bg-bold: #091e42;
+  --ads-bg-input: #ffffff;
+  --ads-bg-disabled: #f7f8f9;
+  --ads-bg-selected: #e9f2fe;
+  --ads-bg-information: #e9f2fe;
+  --ads-bg-success: #dcfff1;
+  --ads-bg-warning: #fff7d6;
+  --ads-bg-danger: #ffeceb;
+  --ads-bg-discovery: #f3f0ff;
+
+  --ads-border: #dcdfe4;
+  --ads-border-input: #8590a2;
+  --ads-border-selected: #0055cc;
+  --ads-border-focused: #0055cc;
+
+  --ads-icon: #172b4d;
+  --ads-icon-subtle: #44546f;
+  --ads-icon-inverse: #ffffff;
+
+  --ads-accent-blue: #0055cc;
+  --ads-accent-blue-bold: #0055cc;
+  --ads-accent-red: #ca3521;
+  --ads-accent-green: #22a06b;
+  --ads-accent-yellow: #946f00;
+  --ads-accent-purple: #6e5dc6;
+  --ads-accent-teal: #1d7f8c;
+  --ads-accent-orange: #bd5b00;
+  --ads-accent-magenta: #ae4787;
+  --ads-accent-gray: #6b6e76;
+
+  --ads-font-sans:
+    "Atlassian Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    sans-serif;
+  --ads-font-mono: "Atlassian Mono", Menlo, Monaco, Consolas, monospace;
+
+  --ads-radius-xs: 2px;
+  --ads-radius-sm: 3px;
+  --ads-radius-md: 4px;
+  --ads-radius-lg: 8px;
+  --ads-radius-xl: 12px;
+  --ads-radius-full: 9999px;
+
+  --ads-space-0: 0px;
+  --ads-space-1: 4px;
+  --ads-space-2: 8px;
+  --ads-space-3: 12px;
+  --ads-space-4: 16px;
+  --ads-space-5: 20px;
+  --ads-space-6: 24px;
+  --ads-space-8: 32px;
+  --ads-space-10: 40px;
+  --ads-space-12: 48px;
+}
+
+[data-color-mode="dark"] {
+  --ads-text: #ffffff;
+  --ads-text-subtle: #b6c2cf;
+  --ads-text-subtlest: #8590a2;
+  --ads-text-inverse: #172b4d;
+  --ads-text-disabled: #626f86;
+  --ads-text-link: #4c9aff;
+
+  --ads-bg: #1d2125;
+  --ads-bg-subtle: #22272b;
+  --ads-bg-bold: #ffffff;
+  --ads-bg-input: #22272b;
+  --ads-bg-disabled: #161a1d;
+  --ads-bg-selected: #1c3b70;
+  --ads-bg-information: #1c3b70;
+  --ads-bg-success: #164b35;
+  --ads-bg-warning: #533f04;
+  --ads-bg-danger: #5d1f1a;
+  --ads-bg-discovery: #352c63;
+
+  --ads-border: #38414a;
+  --ads-border-input: #738496;
+  --ads-border-selected: #4c9aff;
+  --ads-border-focused: #4c9aff;
+
+  --ads-icon: #ffffff;
+  --ads-icon-subtle: #b6c2cf;
+  --ads-icon-inverse: #172b4d;
+
+  --ads-accent-blue: #4c9aff;
+  --ads-accent-blue-bold: #4c9aff;
+  --ads-accent-red: #f87168;
+  --ads-accent-green: #4bce97;
+  --ads-accent-yellow: #e2b203;
+  --ads-accent-purple: #9f8fef;
+  --ads-accent-teal: #6cc3e0;
+  --ads-accent-orange: #fca700;
+  --ads-accent-magenta: #e774bb;
+  --ads-accent-gray: #8c8f97;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-mode]) {
+    /* inherit dark defaults by applying dark class via JS; keep light here to avoid flash mismatch */
+  }
+}

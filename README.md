@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# golki — Jira clone
 
-## Getting Started
+A Jira clone matching the Atlassian Design System (ADS), built with Next.js 16, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Prisma + Postgres, and `@atlaskit/pragmatic-drag-and-drop`.
 
-First, run the development server:
+## Features
+
+- **Auth** — sign up / log in (credentials), protected routes.
+  - ![Login](docs/screenshots/login.png)
+- **Workspaces & projects** — create workspaces, create projects with keys.
+  - ![Workspaces](docs/screenshots/workspaces.png)
+- **Kanban board** — columns by status, drag-and-drop cards (pragmatic-dnd), counts, filters-ready.
+  - ![Board](docs/screenshots/board.png)
+  - ![Board dark](docs/screenshots/board-dark.png)
+- **Issue detail** — edit title/description/status/priority, comments.
+  - ![Issue detail](docs/screenshots/issue-detail.png)
+- **Backlog** — list issues, sprint context.
+  - ![Backlog](docs/screenshots/backlog.png)
+- **Search** — search issues by title/key.
+  - ![Search](docs/screenshots/search.png)
+- **Dark mode** — Atlassian tokens, toggle in header.
+- **Design system** — ADS tokens (color, space, radius, typography, elevation), light/dark.
+
+## Tech stack
+
+Next.js 16 (App Router), React 19, TypeScript strict, Tailwind v4, Biome, Vitest, Prisma + Postgres, next-auth v5, zod, zustand, TanStack Query, agent-browser + Lightpanda (E2E).
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+cp .env.example .env   # or create .env with DATABASE_URL
+docker run -d --name golki-pg -e POSTGRES_USER=golki -e POSTGRES_PASSWORD=golki -e POSTGRES_DB=golki -p 5432:5432 postgres:16-alpine
+bun run db:push
+bun run db:seed
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Demo account: `demo@golki.dev` / `password123`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `bun run dev` — dev server
+- `bun run build` — production build
+- `bun run typecheck` — tsc --noEmit
+- `bun run check` — Biome lint+format
+- `bun run test` — Vitest
+- `bun run e2e` — agent-browser + Lightpanda smoke
+- `bun run db:push` / `db:seed` / `db:studio`
 
-## Learn More
+## E2E
 
-To learn more about Next.js, take a look at the following resources:
+Fast path uses Lightpanda (9x faster, 16x less RAM than Chrome) via `AGENT_BROWSER_ENGINE=lightpanda`. Chrome fallback available.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Performance
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- E2E smoke: Lightpanda renders login in <1s (vs ~46s/2GB for Chrome on 100 pages per Lightpanda benchmarks).
+- Biome check: ~200ms on 58 files.
+- Build: all routes prerender/dynamic in ~seconds.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

@@ -1,27 +1,55 @@
 {
-  "name": "golki-scaffold",
+  "name": "golki",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "typecheck": "tsc --noEmit",
+    "check": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "bash e2e/smoke.sh",
+    "db:push": "prisma db push",
+    "db:seed": "bun run prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@atlaskit/css-reset": "^8.4.6",
+    "@atlaskit/pragmatic-drag-and-drop": "^4.0.0",
+    "@atlaskit/tokens": "^20.7.0",
+    "@heroui/react": "^3.2.6",
+    "@prisma/client": "6",
+    "@tanstack/react-query": "^5.104.5",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
     "next": "16.4.3",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.6.2",
     "@tailwindcss/turbopack": "^4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "jsdom": "^30.1.3",
+    "prisma": "6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.5"
   },
   "packageManager": "bun@1.4.3",
   "ignoreScripts": [
