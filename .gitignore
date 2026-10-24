@@ -42,3 +42,6 @@ next-env.d.ts
 
 # generated (do not edit)
 /src/generated/
+
+# Agent worktrees
+.worktrees/

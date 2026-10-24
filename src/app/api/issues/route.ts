@@ -20,8 +20,21 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'invalid' }, { status: 400 })
   const project = await prisma.project.findUnique({ where: { id: parsed.data.projectId } })
   if (!project) return NextResponse.json({ error: 'project not found' }, { status: 404 })
-  const count = await prisma.issue.count({ where: { projectId: project.id } })
-  const key = `${project.key}-${count + 1}`
+
+  const membership = await prisma.workspaceMember.findUnique({
+    where: { workspaceId_userId: { workspaceId: project.workspaceId, userId } },
+  })
+  if (!membership) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+
+  // Avoid key collisions (e.g. after deletions) by checking existence.
+  let count = await prisma.issue.count({ where: { projectId: project.id } })
+  let key = `${project.key}-${count + 1}`
+  while (
+    await prisma.issue.findUnique({ where: { projectId_key: { projectId: project.id, key } } })
+  ) {
+    count++
+    key = `${project.key}-${count + 1}`
+  }
   const issue = await prisma.issue.create({
     data: {
       key,

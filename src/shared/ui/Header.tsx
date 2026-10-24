@@ -26,7 +26,7 @@ export function Header({ currentWorkspace }: HeaderProps) {
         const res = await fetch('/api/workspaces')
         if (res.ok) {
           const data = await res.json()
-          setWorkspaces(data.workspaces)
+          setWorkspaces(data.workspaces ?? [])
         }
       } catch (error) {
         console.error('Failed to fetch workspaces:', error)

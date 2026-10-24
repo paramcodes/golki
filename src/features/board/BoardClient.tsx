@@ -98,14 +98,22 @@ export function BoardClient({
     return true
   })
 
-  const moveIssue = useCallback(async (issueId: string, newStatus: string, newPosition: number) => {
-    setIssues((prev) => moveCardPosition(prev, issueId, newStatus, newPosition))
-    await fetch(`/api/issues/${issueId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus, position: newPosition }),
-    })
-  }, [])
+  const moveIssue = useCallback(
+    async (issueId: string, newStatus: string, newPosition: number) => {
+      setIssues((prev) => moveCardPosition(prev, issueId, newStatus, newPosition))
+      try {
+        const res = await fetch(`/api/issues/${issueId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus, position: newPosition }),
+        })
+        if (!res.ok) throw new Error('move failed')
+      } catch {
+        router.refresh()
+      }
+    },
+    [router],
+  )
 
   const handleColumnReorder = useCallback((fromIndex: number, toIndex: number) => {
     setColumns((prev) => reorderColumns(prev, fromIndex, toIndex))

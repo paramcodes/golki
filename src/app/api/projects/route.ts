@@ -28,6 +28,11 @@ export async function POST(req: Request) {
   const ws = await prisma.workspace.findUnique({ where: { slug: parsed.data.workspaceSlug } })
   if (!ws) return NextResponse.json({ error: 'workspace not found' }, { status: 404 })
 
+  const membership = await prisma.workspaceMember.findUnique({
+    where: { workspaceId_userId: { workspaceId: ws.id, userId } },
+  })
+  if (!membership) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+
   const existingProject = await prisma.project.findUnique({
     where: { workspaceId_key: { workspaceId: ws.id, key: parsed.data.key.toUpperCase() } },
   })

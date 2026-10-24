@@ -484,7 +484,7 @@ export function IssueDetail({ issue: initialIssue }: { issue: IssueData }) {
                 {label.label.name}
               </button>
             ))}
-            {issue.labels.length === 0 && (
+            {(issue.labels ?? []).length === 0 && (
               <span className="text-xs text-ads-text-subtlest">No labels available</span>
             )}
           </div>

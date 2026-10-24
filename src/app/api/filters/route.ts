@@ -44,17 +44,6 @@ export async function POST(req: Request) {
   const form = await req.formData().catch(() => null)
   const body = form ?? (await req.json().catch(() => ({})))
 
-  const memberships = await prisma.workspaceMember.findMany({
-    where: { userId },
-    select: { workspaceId: true },
-  })
-  const workspaceIds = memberships.map((m) => m.workspaceId)
-  const workspaceId = workspaceIds[0]
-
-  if (!workspaceId) {
-    return NextResponse.json({ error: 'no workspace' }, { status: 400 })
-  }
-
   const parsed = savedFilterSchema.safeParse({
     name: body.name?.toString() ?? '',
     projectId: body.projectId?.toString() ?? undefined,
@@ -66,6 +55,32 @@ export async function POST(req: Request) {
 
   if (!parsed.success) {
     return NextResponse.json({ error: 'invalid' }, { status: 400 })
+  }
+
+  let workspaceId: string | undefined
+  if (parsed.data.projectId) {
+    const project = await prisma.project.findUnique({
+      where: { id: parsed.data.projectId },
+      select: { workspaceId: true },
+    })
+    if (project) {
+      const membership = await prisma.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId: project.workspaceId, userId } },
+      })
+      if (membership) workspaceId = project.workspaceId
+    }
+  }
+  if (!workspaceId) {
+    const memberships = await prisma.workspaceMember.findMany({
+      where: { userId },
+      select: { workspaceId: true },
+      take: 1,
+    })
+    workspaceId = memberships[0]?.workspaceId
+  }
+
+  if (!workspaceId) {
+    return NextResponse.json({ error: 'no workspace' }, { status: 400 })
   }
 
   const filter = await prisma.savedFilter.create({
