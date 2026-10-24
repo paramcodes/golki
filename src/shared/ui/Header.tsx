@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { SearchBar } from '@/shared/ui/SearchBar'
 import { WorkspaceSwitcher } from '@/shared/ui/WorkspaceSwitcher'
 
 interface Workspace {
@@ -76,6 +77,10 @@ export function Header({ currentWorkspace }: HeaderProps) {
               Backlog
             </Link>
           </nav>
+        </div>
+
+        <div className="hidden md:flex flex-1 max-w-xl mx-6">
+          <SearchBar />
         </div>
 
         <div className="flex items-center gap-3">
