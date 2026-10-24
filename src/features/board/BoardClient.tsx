@@ -1,18 +1,56 @@
 'use client'
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Issue as PrismaIssue } from '@/generated/prisma'
-import { Avatar, Button, EmptyState, Input, Modal } from '@/shared/ui'
+import { Button, Input, Modal } from '@/shared/ui'
+import { Column } from './Column'
+import { type BoardFilters, FilterBar } from './FilterBar'
+import {
+  type ColumnConfig,
+  groupByStatus,
+  moveCardPosition,
+  reorderColumns,
+} from './logic/moveCard'
 
-type Issue = PrismaIssue & { assignee?: { name?: string | null } | null }
+type Issue = PrismaIssue & {
+  assignee?: { id: string; name?: string | null } | null
+  labels?: Array<{ label: { id: string; name: string; color: string } }>
+  sprint?: { name: string; endDate: Date | string } | null
+}
 
-const STATUSES = [
-  { key: 'todo', label: 'To Do' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'in_review', label: 'In Review' },
-  { key: 'done', label: 'Done' },
+const DEFAULT_COLUMNS: ColumnConfig[] = [
+  { id: 'col-todo', status: 'todo', label: 'To Do', position: 0 },
+  { id: 'col-in_progress', status: 'in_progress', label: 'In Progress', position: 0 },
+  { id: 'col-in_review', status: 'in_review', label: 'In Review', position: 0 },
+  { id: 'col-done', status: 'done', label: 'Done', position: 0 },
 ]
+
+const STORAGE_KEY = 'golki-board-columns'
+
+function loadColumns(projectId: string): ColumnConfig[] {
+  if (typeof window === 'undefined') return DEFAULT_COLUMNS
+  try {
+    const stored = localStorage.getItem(`${STORAGE_KEY}-${projectId}`)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return DEFAULT_COLUMNS
+}
+
+function saveColumns(projectId: string, columns: ColumnConfig[]) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(`${STORAGE_KEY}-${projectId}`, JSON.stringify(columns))
+  } catch {
+    // Ignore write errors
+  }
+}
 
 export function BoardClient({
   project,
@@ -21,18 +59,95 @@ export function BoardClient({
 }) {
   const router = useRouter()
   const [issues, setIssues] = useState<Issue[]>(project.issues)
+  const [columns, setColumns] = useState<ColumnConfig[]>(() => loadColumns(project.id))
   const [creating, setCreating] = useState(false)
   const [title, setTitle] = useState('')
   const [saving, setSaving] = useState(false)
+  const [editingColumns, setEditingColumns] = useState(false)
+  const [filters, setFilters] = useState<BoardFilters>({
+    assigneeIds: [],
+    types: [],
+    priorities: [],
+    labelIds: [],
+    text: '',
+  })
 
-  const moveIssue = useCallback(async (issueId: string, newStatus: string) => {
-    setIssues((prev) => prev.map((i) => (i.id === issueId ? { ...i, status: newStatus } : i)))
+  // Save columns when they change
+  useEffect(() => {
+    saveColumns(project.id, columns)
+  }, [columns, project.id])
+
+  // Filter issues based on active filters
+  const filteredIssues = issues.filter((issue) => {
+    if (filters.assigneeIds.length > 0) {
+      const assigneeId = issue.assignee?.id
+      if (!assigneeId || !filters.assigneeIds.includes(assigneeId)) return false
+    }
+    if (filters.types.length > 0 && !filters.types.includes(issue.type)) return false
+    if (filters.priorities.length > 0 && !filters.priorities.includes(issue.priority)) return false
+    if (filters.labelIds.length > 0) {
+      const issueLabelIds = issue.labels?.map((l) => l.label.id) ?? []
+      if (!filters.labelIds.some((id) => issueLabelIds.includes(id))) return false
+    }
+    if (filters.text) {
+      const searchText = filters.text.toLowerCase()
+      const titleMatch = issue.title.toLowerCase().includes(searchText)
+      const keyMatch = issue.key.toLowerCase().includes(searchText)
+      if (!titleMatch && !keyMatch) return false
+    }
+    return true
+  })
+
+  const moveIssue = useCallback(async (issueId: string, newStatus: string, newPosition: number) => {
+    setIssues((prev) => moveCardPosition(prev, issueId, newStatus, newPosition))
     await fetch(`/api/issues/${issueId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: newStatus, position: newPosition }),
     })
   }, [])
+
+  const handleColumnReorder = useCallback((fromIndex: number, toIndex: number) => {
+    setColumns((prev) => reorderColumns(prev, fromIndex, toIndex))
+  }, [])
+
+  const handleUpdateColumn = useCallback((column: ColumnConfig) => {
+    setColumns((prev) => prev.map((c) => (c.id === column.id ? column : c)))
+  }, [])
+
+  const handleDeleteColumn = useCallback((columnId: string) => {
+    setColumns((prev) => {
+      const columnToDelete = prev.find((c) => c.id === columnId)
+      if (!columnToDelete) return prev
+
+      // Move issues from deleted column to first remaining column
+      const firstColumn = prev.find((c) => c.id !== columnId)
+      if (firstColumn) {
+        setIssues((issues) =>
+          issues.map((i) =>
+            i.status === columnToDelete.status
+              ? { ...i, status: firstColumn.status, position: 0 }
+              : i,
+          ),
+        )
+      }
+
+      return prev.filter((c) => c.id !== columnId)
+    })
+  }, [])
+
+  const handleAddColumn = useCallback(
+    (status: string, label: string) => {
+      const newColumn: ColumnConfig = {
+        id: `col-${status}`,
+        status,
+        label,
+        position: columns.length,
+      }
+      setColumns((prev) => [...prev, newColumn])
+    },
+    [columns.length],
+  )
 
   async function createIssue() {
     if (!title.trim()) return
@@ -51,6 +166,40 @@ export function BoardClient({
     }
   }
 
+  // Handle drag and drop for column reordering
+  useEffect(() => {
+    const cleanup = monitorForElements({
+      onDrop: ({ source, location }) => {
+        const data = source.data as { columnId?: string; type?: string }
+        if (data?.type === 'column' && data.columnId && location.current.dropTargets.length > 0) {
+          const target = location.current.dropTargets[0]
+          const targetData = target?.data as { columnId?: string; type?: string } | undefined
+          if (
+            targetData?.type === 'column' &&
+            targetData.columnId &&
+            targetData.columnId !== data.columnId
+          ) {
+            const fromIndex = columns.findIndex((c) => c.id === data.columnId)
+            const toIndex = columns.findIndex((c) => c.id === targetData.columnId)
+            if (fromIndex !== -1 && toIndex !== -1) {
+              handleColumnReorder(fromIndex, toIndex)
+            }
+          }
+        }
+      },
+    })
+    return cleanup
+  }, [columns, handleColumnReorder])
+
+  // Group issues by status using the logic function
+  const groupedIssues = groupByStatus(filteredIssues)
+
+  // Ensure all columns have issues array (even empty)
+  const columnsWithIssues = columns.map((col) => ({
+    ...col,
+    issues: groupedIssues[col.status] ?? [],
+  }))
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-ads-border px-4 py-3">
@@ -60,19 +209,34 @@ export function BoardClient({
           </h1>
           <p className="text-sm text-ads-text-subtle">Board</p>
         </div>
-        <Button variant="primary" onClick={() => setCreating(true)}>
-          Create issue
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={editingColumns ? 'primary' : 'default'}
+            onClick={() => setEditingColumns((prev) => !prev)}
+            size="sm"
+          >
+            {editingColumns ? 'Done' : 'Edit columns'}
+          </Button>
+          <Button variant="primary" onClick={() => setCreating(true)} size="sm">
+            Create issue
+          </Button>
+        </div>
       </div>
+
+      <FilterBar issues={issues} onFilterChange={setFilters} initialFilters={filters} />
+
       <div className="flex flex-1 gap-4 overflow-x-auto p-4">
-        {STATUSES.map((col) => (
+        {columnsWithIssues.map((col) => (
           <Column
-            key={col.key}
-            status={col.key}
-            label={col.label}
-            issues={issues.filter((i) => i.status === col.key)}
+            key={col.id}
+            column={col}
+            issues={col.issues}
             onDropIssue={moveIssue}
             onOpen={(id) => router.push(`/issue/${id}`)}
+            onUpdateColumn={handleUpdateColumn}
+            onDeleteColumn={handleDeleteColumn}
+            onAddColumn={handleAddColumn}
+            isEditing={editingColumns}
           />
         ))}
       </div>
@@ -93,80 +257,5 @@ export function BoardClient({
         <Input label="Summary" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       </Modal>
     </div>
-  )
-}
-
-function Column({
-  status,
-  label,
-  issues,
-  onDropIssue,
-  onOpen,
-}: {
-  status: string
-  label: string
-  issues: Issue[]
-  onDropIssue: (issueId: string, status: string) => void
-  onOpen: (id: string) => void
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    return dropTargetForElements({
-      element: el,
-      onDrop: ({ source }) => {
-        const id = (source.data as { issueId?: string }).issueId
-        if (id) onDropIssue(id, status)
-      },
-    })
-  }, [status, onDropIssue])
-
-  return (
-    <div ref={ref} className="flex w-72 shrink-0 flex-col rounded-ads-lg bg-ads-bg-subtle p-2">
-      <div className="mb-2 flex items-center justify-between px-1">
-        <span className="text-sm font-semibold text-ads-text">{label}</span>
-        <span className="rounded-ads-full bg-ads-bg px-2 py-0.5 text-xs text-ads-text-subtle">
-          {issues.length}
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        {issues.length === 0 ? <EmptyState title="No issues" /> : null}
-        {issues.map((issue) => (
-          <IssueCard key={issue.id} issue={issue} onOpen={onOpen} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function IssueCard({ issue, onOpen }: { issue: Issue; onOpen: (id: string) => void }) {
-  const ref = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    return draggable({
-      element: el,
-      getInitialData: () => ({ issueId: issue.id }),
-    })
-  }, [issue.id])
-
-  return (
-    <button
-      type="button"
-      ref={ref}
-      onClick={() => onOpen(issue.id)}
-      className="w-full cursor-grab rounded-ads-md border border-ads-border bg-ads-bg p-3 text-left shadow-sm hover:shadow"
-    >
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-xs text-ads-text-subtlest">{issue.key}</span>
-        <span className="text-xs text-ads-text-subtle">{issue.priority}</span>
-      </div>
-      <p className="text-sm font-medium text-ads-text">{issue.title}</p>
-      <div className="mt-2 flex items-center gap-2">
-        {issue.assignee ? <Avatar name={issue.assignee.name ?? undefined} size="xs" /> : null}
-        <span className="text-xs text-ads-text-subtlest">{issue.type}</span>
-      </div>
-    </button>
   )
 }

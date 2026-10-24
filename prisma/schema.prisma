@@ -17,12 +17,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts  Account[]
-  sessions  Session[]
-  memberships WorkspaceMember[]
-  assignedIssues Issue[] @relation("Assignee")
-  reportedIssues Issue[] @relation("Reporter")
-  comments  Comment[]
+  accounts       Account[]
+  sessions       Session[]
+  memberships    WorkspaceMember[]
+  assignedIssues Issue[]       @relation("Assignee")
+  reportedIssues Issue[]       @relation("Reporter")
+  ledProjects    Project[]     @relation("LedProjects")
+  comments       Comment[]
+  savedFilters   SavedFilter[]
 }
 
 model Account {
@@ -63,8 +65,9 @@ model Workspace {
   slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  members   WorkspaceMember[]
-  projects  Project[]
+  members       WorkspaceMember[]
+  projects      Project[]
+  savedFilters  SavedFilter[]
 }
 
 model WorkspaceMember {
@@ -89,6 +92,7 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lead        User?    @relation("LedProjects", fields: [leadId], references: [id])
   issues      Issue[]
   sprints     Sprint[]
   labels      Label[]
@@ -166,4 +170,20 @@ model IssueLabel {
   issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
   label   Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
   @@id([issueId, labelId])
+}
+
+model SavedFilter {
+  id          String   @id @default(cuid())
+  name        String
+  projectId   String?
+  status      String?
+  assigneeId  String?
+  labelIds    String[]
+  text        String?
+  userId      String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }

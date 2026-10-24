@@ -11,11 +11,30 @@ export default async function IssuePage({ params }: { params: Promise<{ id: stri
     include: {
       assignee: true,
       reporter: true,
-      project: true,
+      project: {
+        include: {
+          workspace: {
+            include: {
+              members: {
+                include: { user: true },
+              },
+            },
+          },
+        },
+      },
       comments: { include: { author: true }, orderBy: { createdAt: 'asc' } },
       labels: { include: { label: true } },
+      sprint: true,
     },
   })
   if (!issue) notFound()
-  return <IssueDetail issue={issue} />
+  // Transform to include project.members for easier access in component
+  const issueWithMembers = {
+    ...issue,
+    project: {
+      ...issue.project,
+      members: issue.project.workspace.members,
+    },
+  }
+  return <IssueDetail issue={issueWithMembers} />
 }
