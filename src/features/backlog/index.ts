@@ -1,0 +1,5 @@
+export { BacklogClient } from './BacklogClient'
+export { BacklogList } from './BacklogList'
+export { moveIssueToSprint, reorderIssues } from './logic/reorderIssues'
+export { SprintPanel } from './SprintPanel'
+export type { Issue, Sprint } from './types'

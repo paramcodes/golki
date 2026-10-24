@@ -19,7 +19,32 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
   const project = await prisma.project.findUnique({
     where: { id },
-    include: { workspace: true, lead: true },
+    include: {
+      workspace: true,
+      lead: true,
+      issues: {
+        include: {
+          assignee: true,
+          labels: { include: { label: true } },
+          sprint: true,
+        },
+        orderBy: { position: 'asc' },
+      },
+      sprints: {
+        include: {
+          issues: {
+            include: {
+              assignee: true,
+              labels: { include: { label: true } },
+              sprint: true,
+            },
+            orderBy: { position: 'asc' },
+          },
+          _count: { select: { issues: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+    },
   })
   if (!project) return NextResponse.json({ error: 'not found' }, { status: 404 })
 
@@ -28,7 +53,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   })
   if (!membership) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
 
-  return NextResponse.json({ project })
+  return NextResponse.json(project)
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

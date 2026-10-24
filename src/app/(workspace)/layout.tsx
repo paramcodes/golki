@@ -16,11 +16,10 @@ export default async function WorkspaceLayout({
   children: React.ReactNode
   params: Promise<{ workspaceSlug: string }>
 }) {
+  const { workspaceSlug } = await params
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) redirect('/login')
-
-  const { workspaceSlug } = await params
 
   const memberships = await prisma.workspaceMember.findMany({
     where: { userId },
@@ -33,7 +32,7 @@ export default async function WorkspaceLayout({
     slug: m.workspace.slug,
   }))
 
-  const currentWorkspace = workspaces.find((w) => w.slug === workspaceSlug) ?? workspaces[0]
+  const currentWorkspace = workspaces[0]
 
   if (!currentWorkspace) {
     redirect('/workspaces')
