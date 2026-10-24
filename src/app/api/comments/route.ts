@@ -1,20 +1,22 @@
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
 import { auth } from '@/server/auth/auth'
-import { prisma } from '@/server/db/prisma'
-
-const schema = z.object({ issueId: z.string(), body: z.string().min(1) })
+import { commentRepository } from '@/server/repositories/comment'
+import { createCommentSchema } from '@/server/schemas/comment'
+import type { IssueId, UserId } from '@/shared/types/ids'
 
 export async function POST(req: Request) {
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
   const body = await req.json().catch(() => null)
-  const parsed = schema.safeParse(body)
+  const parsed = createCommentSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'invalid' }, { status: 400 })
-  const comment = await prisma.comment.create({
-    data: { issueId: parsed.data.issueId, body: parsed.data.body, authorId: userId },
-    include: { author: true },
+
+  const comment = await commentRepository.create({
+    issueId: parsed.data.issueId as IssueId,
+    body: parsed.data.body,
+    authorId: userId as UserId,
   })
   return NextResponse.json(comment)
 }
