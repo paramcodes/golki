@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@atlaskit/css-reset/dist/bundle.css";
+@import "./atlaskit-reset.css";
 @import "../styles/tokens.css";
 
 @theme inline {
