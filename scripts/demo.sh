@@ -2,6 +2,7 @@
 set -u
 cd /home/param/Work/golki
 export AGENT_BROWSER_ENGINE=chrome
+export AGENT_BROWSER_HEADED=true
 OUT=docs/demo.mp4
 mkdir -p docs
 
