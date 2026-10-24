@@ -14,13 +14,14 @@ export default async function WorkspaceLayout({
   params,
 }: {
   children: React.ReactNode
-  params: Promise<{ workspaceSlug: string }>
+  params?: Promise<{ workspaceSlug?: string }>
 }) {
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) redirect('/login')
 
-  const { workspaceSlug } = await params
+  const resolved = params ? await params : {}
+  const workspaceSlug = resolved.workspaceSlug
 
   const memberships = await prisma.workspaceMember.findMany({
     where: { userId },
