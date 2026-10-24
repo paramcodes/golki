@@ -14,7 +14,7 @@ const savedFilterSchema = z.object({
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   const session = await auth()
   const userId = (session?.user as { id?: string })?.id
   if (!userId) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })

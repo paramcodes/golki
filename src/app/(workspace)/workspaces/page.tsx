@@ -26,10 +26,18 @@ export default function WorkspacesPage() {
     fetch('/api/workspaces')
       .then((r) => r.json())
       .then((data) => {
-        const ms: Membership[] = (data.workspaces ?? []).map((w: any) => ({
-          workspace: { id: w.id, name: w.name, slug: w.slug, projects: w.projects ?? [] },
-          role: w.role,
-        }))
+        const ms: Membership[] = (data.workspaces ?? []).map(
+          (w: {
+            id: string
+            name: string
+            slug: string
+            role: string
+            projects?: { id: string; key: string; name: string }[]
+          }) => ({
+            workspace: { id: w.id, name: w.name, slug: w.slug, projects: w.projects ?? [] },
+            role: w.role,
+          }),
+        )
         setMemberships(ms)
         setLoading(false)
       })
@@ -89,65 +97,65 @@ export default function WorkspacesPage() {
       {loading ? (
         <p className="text-sm text-ads-text-subtle">Loading workspaces…</p>
       ) : (
-      <div className="grid gap-4 md:grid-cols-2">
-        {memberships.map((m) => (
-          <div
-            key={m.workspace.id}
-            className="rounded-ads-lg border border-ads-border bg-ads-bg p-4"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">{m.workspace.name}</h2>
-              {m.role === 'admin' && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={() => setInviteModal({ open: true, workspaceId: m.workspace.id })}
+        <div className="grid gap-4 md:grid-cols-2">
+          {memberships.map((m) => (
+            <div
+              key={m.workspace.id}
+              className="rounded-ads-lg border border-ads-border bg-ads-bg p-4"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">{m.workspace.name}</h2>
+                {m.role === 'admin' && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => setInviteModal({ open: true, workspaceId: m.workspace.id })}
+                  >
+                    Invite member
+                  </Button>
+                )}
+              </div>
+              <p className="text-sm text-ads-text-subtle">{m.workspace.projects.length} projects</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {m.workspace.projects.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/w/${m.workspace.slug}/p/${p.key}`}
+                    className="rounded-ads-md bg-ads-bg-subtle px-2 py-1 text-sm text-ads-text-link"
+                  >
+                    {p.key} {p.name}
+                  </Link>
+                ))}
+              </div>
+              <form action="/api/projects" method="post" className="mt-3 flex gap-2">
+                <input type="hidden" name="workspaceSlug" value={m.workspace.slug} />
+                <input
+                  name="key"
+                  placeholder="KEY"
+                  required
+                  maxLength={10}
+                  className="h-8 w-16 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm uppercase"
+                />
+                <input
+                  name="name"
+                  placeholder="Project name"
+                  required
+                  className="h-8 flex-1 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
+                />
+                <select
+                  name="type"
+                  className="h-8 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
                 >
-                  Invite member
+                  <option value="kanban">Kanban</option>
+                  <option value="scrum">Scrum</option>
+                </select>
+                <Button type="submit" size="sm">
+                  Create
                 </Button>
-              )}
+              </form>
             </div>
-            <p className="text-sm text-ads-text-subtle">{m.workspace.projects.length} projects</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {m.workspace.projects.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/w/${m.workspace.slug}/p/${p.key}`}
-                  className="rounded-ads-md bg-ads-bg-subtle px-2 py-1 text-sm text-ads-text-link"
-                >
-                  {p.key} {p.name}
-                </Link>
-              ))}
-            </div>
-            <form action="/api/projects" method="post" className="mt-3 flex gap-2">
-              <input type="hidden" name="workspaceSlug" value={m.workspace.slug} />
-              <input
-                name="key"
-                placeholder="KEY"
-                required
-                maxLength={10}
-                className="h-8 w-16 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm uppercase"
-              />
-              <input
-                name="name"
-                placeholder="Project name"
-                required
-                className="h-8 flex-1 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
-              />
-              <select
-                name="type"
-                className="h-8 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
-              >
-                <option value="kanban">Kanban</option>
-                <option value="scrum">Scrum</option>
-              </select>
-              <Button type="submit" size="sm">
-                Create
-              </Button>
-            </form>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       )}
 
       <Modal
