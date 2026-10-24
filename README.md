@@ -2,6 +2,10 @@
 
 A Jira clone matching the Atlassian Design System (ADS), built with Next.js 16, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Prisma + Postgres, and `@atlaskit/pragmatic-drag-and-drop`.
 
+## Demo video
+
+https://github.com/paramcodes/golki/raw/master/docs/demo.mp4
+
 ## Features
 
 - **Auth** — sign up / log in (credentials), protected routes.
