@@ -10,23 +10,33 @@ https://github.com/paramcodes/golki/raw/master/docs/demo.mp4
 
 - **Auth** — sign up / log in (credentials), protected routes.
   - ![Login](docs/screenshots/login.png)
-- **Workspaces & projects** — create workspaces, create projects with keys.
+- **Workspaces & projects** — create workspaces, create projects with keys, invite members, edit project settings.
   - ![Workspaces](docs/screenshots/workspaces.png)
-- **Kanban board** — columns by status, drag-and-drop cards (pragmatic-dnd), counts, filters-ready.
+- **Kanban board** — custom columns, drag-and-drop cards (pragmatic-dnd), filters by assignee/type/priority/label/text, WIP limits, labels/estimate/due dates.
   - ![Board](docs/screenshots/board.png)
   - ![Board dark](docs/screenshots/board-dark.png)
-- **Issue detail** — edit title/description/status/priority, comments.
+- **Issue detail** — Tiptap editor, edit all fields (status/priority/type/assignee/labels/estimate/sprint), delete with confirmation, comments with edit/delete.
   - ![Issue detail](docs/screenshots/issue-detail.png)
-- **Backlog** — list issues, sprint context.
+- **Backlog & sprints** — virtualized backlog, drag to reorder, sprint create/start/complete, move issues in/out of sprints.
   - ![Backlog](docs/screenshots/backlog.png)
-- **Search** — search issues by title/key.
+- **Search & filters** — global search bar, filter by project/status/assignee/label/text, saved filters.
   - ![Search](docs/screenshots/search.png)
 - **Dark mode** — Atlassian tokens, toggle in header.
-- **Design system** — ADS tokens (color, space, radius, typography, elevation), light/dark.
+- **Design system** — ADS tokens (color, space, radius, typography, elevation, motion), light/dark, full primitive library.
+  - ![Components light](docs/media/p1-review/p1-preview-light.png)
+  - ![Components dark](docs/media/p1-review/p1-preview-dark.png)
+  - ![Dropdown](docs/media/p1-review/p1-dropdown.png)
+  - ![Select](docs/media/p1-review/p1-select.png)
+  - ![Tooltip](docs/media/p1-review/p1-tooltip.png)
+  - ![Tag/badge](docs/media/p1-review/p1-tag-badge.png)
+  - ![Focus states](docs/media/p1-review/p1-focus.png)
+  - ![Skeleton](docs/media/p1-review/p1-skeleton.png)
+  - ![Mobile responsive](docs/media/p1-review/p1-mobile.png)
+  - ![Reduced motion](docs/media/p1-review/p1-reduced-motion.png)
 
 ## Tech stack
 
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind v4, Biome, Vitest, Prisma + Postgres, next-auth v5, zod, zustand, TanStack Query, agent-browser + Lightpanda (E2E).
+Next.js 16 (App Router), React 19, TypeScript strict, Tailwind v4, Biome, Vitest, Prisma + Postgres, next-auth v5, zod, zustand, TanStack Query, Tiptap, @atlaskit/pragmatic-drag-and-drop, @tanstack/react-virtual, agent-browser + Lightpanda (E2E).
 
 ## Getting started
 
