@@ -1,18 +1,19 @@
-# P3 Implementation Tasks
+# P5 Board Interactions - Implementation Plan
 
-## Files to create/edit (from brief scope)
+## Files to create/edit:
 
-- [ ] Create `src/shared/ui/WorkspaceSwitcher.tsx` - Workspace switcher component
-- [ ] Edit `src/app/(workspace)/layout.tsx` - Add workspace switcher to header
-- [ ] Edit `src/app/(workspace)/workspaces/page.tsx` - Add member invite by email
-- [ ] Edit `src/app/api/workspaces/route.ts` - Add member invite endpoint
-- [ ] Edit `src/app/api/projects/route.ts` - Add project type selection (kanban/scrum)
-- [ ] Create `src/app/api/projects/[id]/route.ts` - Add project edit (key, name, type, lead)
+- src/features/board/Column.tsx (NEW)
+- src/features/board/FilterBar.tsx (NEW)
+- src/features/board/BoardClient.tsx (UPDATE)
+- src/features/board/logic/moveCard.ts (UPDATE)
 
-## Acceptance criteria verification
+## Tasks:
 
-- [ ] Header shows current workspace with a switcher
-- [ ] Member invite by email works at basic level
-- [ ] Project creation chooses kanban or scrum
-- [ ] Project edit for key, name, type, and lead works
-- [ ] `bun run check`, `bun run typecheck`, `bun run test` pass
+- [ ] Create Column.tsx with custom column create/rename/reorder/delete, WIP limits
+- [ ] Create FilterBar.tsx with assignee/type/priority/label/text filters
+- [ ] Update BoardClient.tsx to use new components, show labels/estimate/due date on cards, persist position on drag
+- [ ] Update moveCard.ts logic for position handling
+- [ ] Run bun run check
+- [ ] Run bun run typecheck
+- [ ] Run bun run test
+- [ ] Commit changes
