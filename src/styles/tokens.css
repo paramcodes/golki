@@ -53,6 +53,23 @@
   --ads-radius-xl: 12px;
   --ads-radius-full: 9999px;
 
+  /* elevation */
+  --ads-elevation-surface: #ffffff;
+  --ads-elevation-raised: #ffffff;
+  --ads-elevation-sunken: #f7f8f9;
+  --ads-elevation-overlay: #ffffff;
+  --ads-shadow-raised: 0 1px 2px rgba(9, 30, 66, 0.13), 0 0 1px rgba(9, 30, 66, 0.13);
+  --ads-shadow-overlay: 0 8px 16px rgba(9, 30, 66, 0.25);
+  --ads-shadow-overflow: 0 0 1px rgba(9, 30, 66, 0.31), 0 4px 8px -2px rgba(9, 30, 66, 0.25);
+
+  /* motion */
+  --ads-motion-duration-short: 150ms;
+  --ads-motion-duration-medium: 250ms;
+  --ads-motion-duration-long: 400ms;
+  --ads-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ads-motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ads-motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
   --ads-space-0: 0px;
   --ads-space-1: 4px;
   --ads-space-2: 8px;
@@ -104,6 +121,23 @@
   --ads-accent-orange: #fca700;
   --ads-accent-magenta: #e774bb;
   --ads-accent-gray: #8c8f97;
+
+  /* elevation */
+  --ads-elevation-surface: #1d2125;
+  --ads-elevation-raised: #22272b;
+  --ads-elevation-sunken: #161a1d;
+  --ads-elevation-overlay: #282e33;
+  --ads-shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.4);
+  --ads-shadow-overlay: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --ads-shadow-overflow: 0 0 1px rgba(0, 0, 0, 0.5), 0 4px 8px -2px rgba(0, 0, 0, 0.4);
+
+  /* motion */
+  --ads-motion-duration-short: 150ms;
+  --ads-motion-duration-medium: 250ms;
+  --ads-motion-duration-long: 400ms;
+  --ads-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ads-motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ads-motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
 }
 
 @media (prefers-color-scheme: dark) {

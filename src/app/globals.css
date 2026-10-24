@@ -51,6 +51,48 @@
   --radius-ads-lg: var(--ads-radius-lg);
   --radius-ads-xl: var(--ads-radius-xl);
   --radius-ads-full: var(--ads-radius-full);
+
+  /* space */
+  --spacing-ads-0: var(--ads-space-0);
+  --spacing-ads-1: var(--ads-space-1);
+  --spacing-ads-2: var(--ads-space-2);
+  --spacing-ads-3: var(--ads-space-3);
+  --spacing-ads-4: var(--ads-space-4);
+  --spacing-ads-5: var(--ads-space-5);
+  --spacing-ads-6: var(--ads-space-6);
+  --spacing-ads-8: var(--ads-space-8);
+  --spacing-ads-10: var(--ads-space-10);
+  --spacing-ads-12: var(--ads-space-12);
+
+  /* elevation */
+  --shadow-ads-raised: var(--ads-shadow-raised);
+  --shadow-ads-overlay: var(--ads-shadow-overlay);
+  --shadow-ads-overflow: var(--ads-shadow-overflow);
+  --color-ads-elevation-surface: var(--ads-elevation-surface);
+  --color-ads-elevation-raised: var(--ads-elevation-raised);
+  --color-ads-elevation-sunken: var(--ads-elevation-sunken);
+  --color-ads-elevation-overlay: var(--ads-elevation-overlay);
+
+  /* motion */
+  --transition-duration-ads-short: var(--ads-motion-duration-short);
+  --transition-duration-ads-medium: var(--ads-motion-duration-medium);
+  --transition-duration-ads-long: var(--ads-motion-duration-long);
+  --ease-ads-standard: var(--ads-motion-easing-standard);
+  --ease-ads-decelerate: var(--ads-motion-easing-decelerate);
+  --ease-ads-accelerate: var(--ads-motion-easing-accelerate);
+  --animate-ads-fade-in: ads-fade-in var(--ads-motion-duration-medium)
+    var(--ads-motion-easing-decelerate);
+}
+
+@keyframes ads-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 body {
