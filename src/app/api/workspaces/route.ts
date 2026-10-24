@@ -16,13 +16,15 @@ export async function GET(_req: Request) {
 
   const memberships = await prisma.workspaceMember.findMany({
     where: { userId },
-    include: { workspace: true },
+    include: { workspace: { include: { projects: true } } },
   })
 
   const workspaces = memberships.map((m) => ({
     id: m.workspace.id,
     name: m.workspace.name,
     slug: m.workspace.slug,
+    role: m.role,
+    projects: m.workspace.projects.map((p) => ({ id: p.id, key: p.key, name: p.name })),
   }))
 
   return NextResponse.json({ workspaces })

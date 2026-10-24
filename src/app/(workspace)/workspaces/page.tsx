@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { Modal } from '@/shared/ui/Modal'
@@ -18,12 +18,23 @@ interface Membership {
   role: string
 }
 
-export default function WorkspacesPage({
-  memberships: initialMemberships,
-}: {
-  memberships: Membership[]
-}) {
-  const [memberships, _setMemberships] = useState<Membership[]>(initialMemberships)
+export default function WorkspacesPage() {
+  const [memberships, setMemberships] = useState<Membership[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/workspaces')
+      .then((r) => r.json())
+      .then((data) => {
+        const ms: Membership[] = (data.workspaces ?? []).map((w: any) => ({
+          workspace: { id: w.id, name: w.name, slug: w.slug, projects: w.projects ?? [] },
+          role: w.role,
+        }))
+        setMemberships(ms)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
   const [inviteModal, setInviteModal] = useState<{ open: boolean; workspaceId: string }>({
     open: false,
     workspaceId: '',
@@ -75,6 +86,9 @@ export default function WorkspacesPage({
           </Button>
         </form>
       </div>
+      {loading ? (
+        <p className="text-sm text-ads-text-subtle">Loading workspaces…</p>
+      ) : (
       <div className="grid gap-4 md:grid-cols-2">
         {memberships.map((m) => (
           <div
@@ -134,6 +148,7 @@ export default function WorkspacesPage({
           </div>
         ))}
       </div>
+      )}
 
       <Modal
         open={inviteModal.open}

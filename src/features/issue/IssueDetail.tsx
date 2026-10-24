@@ -212,7 +212,7 @@ export function IssueDetail({ issue: initialIssue }: { issue: IssueData }) {
   const [estimate, setEstimate] = useState<number | undefined>(issue.estimate ?? undefined)
   const [sprintId, setSprintId] = useState<string | undefined>(issue.sprintId ?? undefined)
   const [selectedLabels, setSelectedLabels] = useState<string[]>(
-    issue.labels.map((l) => l.label.id),
+    (issue.labels ?? []).map((l) => l.label.id),
   )
   const [error, setError] = useState<string | null>(null)
   const editorRef = useRef<ReturnType<typeof useEditor> | null>(null)
@@ -257,7 +257,7 @@ export function IssueDetail({ issue: initialIssue }: { issue: IssueData }) {
     setAssigneeId(initialIssue.assignee?.id ?? undefined)
     setEstimate(initialIssue.estimate ?? undefined)
     setSprintId(initialIssue.sprintId ?? undefined)
-    setSelectedLabels(initialIssue.labels.map((l) => l.label.id))
+    setSelectedLabels((initialIssue.labels ?? []).map((l) => l.label.id))
   }, [initialIssue])
 
   async function save() {
@@ -464,7 +464,7 @@ export function IssueDetail({ issue: initialIssue }: { issue: IssueData }) {
         <fieldset className="flex flex-col gap-1 sm:col-span-2 lg:col-span-2">
           <legend className="text-xs font-medium text-ads-text-subtle">Labels</legend>
           <div className="flex flex-wrap gap-2">
-            {issue.labels.map((label) => (
+            {(issue.labels ?? []).map((label) => (
               <button
                 key={label.label.id}
                 type="button"
@@ -504,7 +504,7 @@ export function IssueDetail({ issue: initialIssue }: { issue: IssueData }) {
       <div className="mt-8">
         <h3 className="mb-2 text-sm font-semibold text-ads-text">Comments</h3>
         <div className="space-y-3">
-          {issue.comments.map((c) => (
+          {(issue.comments ?? []).map((c) => (
             <CommentItem
               key={c.id}
               comment={c}
