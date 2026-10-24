@@ -1,17 +1,63 @@
+'use client'
 import Link from 'next/link'
-import { auth } from '@/server/auth/auth'
-import { prisma } from '@/server/db/prisma'
-import { Button } from '@/shared/ui'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Button } from '@/shared/ui/Button'
+import { Input } from '@/shared/ui/Input'
+import { Modal } from '@/shared/ui/Modal'
 
-export const dynamic = 'force-dynamic'
+interface Workspace {
+  id: string
+  name: string
+  slug: string
+  projects: { id: string; key: string; name: string }[]
+}
 
-export default async function WorkspacesPage() {
-  const session = await auth()
-  const userId = (session?.user as { id?: string })?.id
-  const memberships = await prisma.workspaceMember.findMany({
-    where: { userId },
-    include: { workspace: { include: { projects: true } } },
+interface Membership {
+  workspace: Workspace
+  role: string
+}
+
+export default function WorkspacesPage({
+  memberships: initialMemberships,
+}: {
+  memberships: Membership[]
+}) {
+  const [memberships, _setMemberships] = useState<Membership[]>(initialMemberships)
+  const [inviteModal, setInviteModal] = useState<{ open: boolean; workspaceId: string }>({
+    open: false,
+    workspaceId: '',
   })
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [isInviting, setIsInviting] = useState(false)
+  const router = useRouter()
+
+  const handleInvite = async (workspaceId: string) => {
+    setIsInviting(true)
+    try {
+      const res = await fetch('/api/workspaces', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          action: 'invite',
+          workspaceId,
+          email: inviteEmail,
+        }),
+      })
+      if (res.ok) {
+        setInviteModal({ open: false, workspaceId: '' })
+        setInviteEmail('')
+        router.refresh()
+      } else {
+        alert('Failed to invite member')
+      }
+    } catch (error) {
+      console.error('Invite failed:', error)
+      alert('Failed to invite member')
+    } finally {
+      setIsInviting(false)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-4xl p-6">
@@ -35,7 +81,18 @@ export default async function WorkspacesPage() {
             key={m.workspace.id}
             className="rounded-ads-lg border border-ads-border bg-ads-bg p-4"
           >
-            <h2 className="font-semibold">{m.workspace.name}</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">{m.workspace.name}</h2>
+              {m.role === 'admin' && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => setInviteModal({ open: true, workspaceId: m.workspace.id })}
+                >
+                  Invite member
+                </Button>
+              )}
+            </div>
             <p className="text-sm text-ads-text-subtle">{m.workspace.projects.length} projects</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {m.workspace.projects.map((p) => (
@@ -54,7 +111,8 @@ export default async function WorkspacesPage() {
                 name="key"
                 placeholder="KEY"
                 required
-                className="h-8 w-16 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
+                maxLength={10}
+                className="h-8 w-16 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm uppercase"
               />
               <input
                 name="name"
@@ -62,6 +120,13 @@ export default async function WorkspacesPage() {
                 required
                 className="h-8 flex-1 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
               />
+              <select
+                name="type"
+                className="h-8 rounded-ads-md border border-ads-border-input bg-ads-bg-input px-2 text-sm"
+              >
+                <option value="kanban">Kanban</option>
+                <option value="scrum">Scrum</option>
+              </select>
               <Button type="submit" size="sm">
                 Create
               </Button>
@@ -69,6 +134,52 @@ export default async function WorkspacesPage() {
           </div>
         ))}
       </div>
+
+      <Modal
+        open={inviteModal.open}
+        onClose={() => setInviteModal({ open: false, workspaceId: '' })}
+        title="Invite member"
+        size="sm"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleInvite(inviteModal.workspaceId)
+          }}
+        >
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="invite-email"
+                className="block text-sm font-medium text-ads-text mb-1"
+              >
+                Email address
+              </label>
+              <Input
+                id="invite-email"
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="member@example.com"
+                required
+                className="w-full"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => setInviteModal({ open: false, workspaceId: '' })}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" loading={isInviting}>
+              Invite
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }

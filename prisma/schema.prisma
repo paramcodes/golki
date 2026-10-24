@@ -17,12 +17,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts  Account[]
-  sessions  Session[]
-  memberships WorkspaceMember[]
-  assignedIssues Issue[] @relation("Assignee")
-  reportedIssues Issue[] @relation("Reporter")
-  comments  Comment[]
+  accounts       Account[]
+  sessions       Session[]
+  memberships    WorkspaceMember[]
+  assignedIssues Issue[]       @relation("Assignee")
+  reportedIssues Issue[]       @relation("Reporter")
+  ledProjects    Project[]     @relation("LedProjects")
+  comments       Comment[]
 }
 
 model Account {
@@ -89,6 +90,7 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lead        User?    @relation("LedProjects", fields: [leadId], references: [id])
   issues      Issue[]
   sprints     Sprint[]
   labels      Label[]
